@@ -125,28 +125,67 @@ Ctrl+Alt+L - форматуємо код в правильний вигляд. �
 [Модель товара](#8.1)</br>
 [Перегляд списку всіх товарів](#8.2)</br>
 [Додавання товара](#8.3)</br>
-[Видалення товара](#8.4)</br>
+[Перегляд докладного опису товара](#8.4)</br>
+[Видалення товара](#8.5)</br>
 
 
 Модель товара:<a id="8.1"></a>
-
 ```
-@Service
+public class Product {
+   private long id;
+   private String title;
+   private String description;
+   private double price;
+   private String city;
+   private String author;
+}
+
+Конструктор
+Методи Get і Set
+Перевизначення методів equals(), hashCode(), toString()
+```
+```
 public class ProductService {
     
-    private List<Product> products = new ArrayList<>();
-    private long ID = 0;
+   private List<Product> products = new ArrayList<>();
+   private long ID = 0;
     
-    {
-        products.add(new Product(++ID, "PlayStation 5", "Simple description", 50000.00, "Kyiv", "Piter"));
-        products.add(new Product(++ID, "iPhone 14", "Simple description", 60000.00, "Lviv", "Patric"));
-    }
+   {
+      products.add(new Product(++ID, "PlayStation 5", "Simple description", 50000.00, "Kyiv", "Piter"));
+      products.add(new Product(++ID, "iPhone 14", "Simple description", 60000.00, "Lviv", "Patric"));
+   }
 
 }
 ```
+
 Перегляд списку всіх товарів:<a id="8.2"></a>
 ```
-@Service
+product.ftlh
+<html>
+   <body>
+      <h4>Товари зі всієї України</h4>
+      <#list products as product>
+         <div>
+            <p><b>${product.title}</b> ${product.price} UAH | <a href="/product/${product.id}">Докладно</a></p>
+         </div>
+      </#list>
+   </body>
+</html>
+```
+```
+public class ProductController {
+   
+   private final ProductService productService;
+
+   @GetMapping("/")
+   public String products(Model model) {
+      model.addAttribute("products", productService.listProducts());
+      return "products";
+   }
+   
+}
+```
+```
 public class ProductService {
    
    public List<Product> listProducts() {
@@ -155,25 +194,131 @@ public class ProductService {
 
 }
 ```
+
 Додавання товара:<a id="8.3"></a>
 ```
-@Service
+product.ftlh
+<html>
+   <body>
+      <h3>Створити новий товар</h3>
+      <form action="/product/create" method="post">
+         Назва оголошення: <input type="text" name="title"/><br><br>
+         Опис оголошення: <input type="text" name="description"/><br><br>
+         Ціна: <input type="number" name="price"/><br><br>
+         Місто: <input type="text" name="city"/><br><br>
+         Автор: <input type="text" name="author"/><br><br>
+         <input type="submit" value="Додати товар"/>
+      </form>
+   </body>
+</html>
+```
+```
+public class ProductController {
+   
+   private final ProductService productService;
+
+   @PostMapping("/product/create")
+   public String createProduct(Product product) {
+      productService.saveProduct(product);
+      return "redirect:/";
+   }
+   
+}
+```
+```
 public class ProductService {
    
    public void saveProduct(Product product) {
-      product.setId(++ID);
-      products.add(product);
+        product.setId(++ID);
+        products.add(product);
+    }
+
+}
+```
+
+Перегляд докладного опису товара:<a id="8.4"></a>
+```
+product.ftlh
+<html>
+   <body>
+      <h4>Товари зі всієї України</h4>
+      <#list products as product>
+         <div>
+            <p><b>${product.title}</b> ${product.price} UAH | <a href="/product/${product.id}">Докладно</a></p>
+         </div>
+      </#list>
+   </body>
+</html>
+```
+```
+product-info.ftlh
+<html>
+   <body>
+      <h4>Докладна інформація о товарі</h4>
+      <b>Назва товару: </b>${product.title}<br>
+      <b>Опис товару: </b>${product.description}<br>
+      <b>Ціна: </b>${product.price}<br>
+      <b>Місто: </b>${product.city}<br>
+      <b>Автор: </b>${product.author}<br>
+   </body>
+</html>
+```
+```
+public class ProductController {
+   
+   private final ProductService productService;
+
+   @GetMapping("/product/{id}")
+    public String productInfo(@PathVariable Long id, Model model) {
+        model.addAttribute("product", productService.getProductById(id));
+        return "product-info";
+    }
+   
+}
+```
+```
+public class ProductService {
+   
+   public Product getProductById(Long id) {
+      for (Product product : products)
+         if (product.getId() == id) {
+            return product;
+         }
+      return null;
    }
 
 }
 ```
-Видалення товара:<a id="8.4"></a>
+
+Видалення товара:<a id="8.5"></a>
 ```
-@Service
+product-info.ftlh
+<html>
+   <body>
+      <form action="/product/delete/${product.id}" method="post">
+         <input type="submit" value="Видалити товар"/>
+      </form>
+   </body>
+</html>
+```
+```
+public class ProductController {
+   
+   private final ProductService productService;
+
+   @PostMapping("/product/delete/{id}")
+   public String deleteProduct(@PathVariable Long id) {
+      productService.deleteProduct(id);
+      return "redirect:/";
+   }
+   
+}
+```
+```
 public class ProductService {
    
    public void deleteProduct(Long id) {
-      products.removeIf(product -> product.getId().equals(id));
+      products.removeIf(product -> product.getId() == id);
    }
 
 }
