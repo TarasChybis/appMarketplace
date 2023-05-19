@@ -72,7 +72,7 @@ Controlle.
    `+` MySQL Driver<br>
    `+` Spring Security<br>
    `+` Java Mail Sender<br>
-+ <a href="https://learn.microsoft.com/ru-ru/contribute/how-to-write-links#bookmark-links">Рекогносцювання</a>
++ <a href="https://www.youtube.com/watch?v=aCyvybo8ko8">Spring Boot. Разрабатываем веб-приложение с нуля. Подключаем приложение к базе данных</a>
 + <a href="https://learn.microsoft.com/ru-ru/contribute/how-to-write-links#bookmark-links">Схема взаємодії з користувачем</a>
 
 <p>Проект запущено на Heroku (посилання).</b>
@@ -95,11 +95,15 @@ PROXY_PASSWORD = ПАРОЛЬ
 DATABASE_URL = "Посилання на вашу базу даних"
 ```
 ## 6. Наповнення бази даних <a id="6"></a>
-З корня проекту запустіть парсер:
+В файлі application.properties прописати
 ```
-python crawlers/zoon/main.py
+# suppress inspection "UnusedProperty" for whole file
+spring.datasource.url=jdbc:mysql://localhost:3306/app_marketplace
+spring.datasource.username=root
+spring.datasource.password=${ваш пароль до бази даних}
+spring.jpa.hibernate.ddl-auto-update
+spring.jpa.show-sql=true
 ```
-Дочекайтеся, доки спарсяться дані по ресторанам.
 
 ## 7. Запуск <a id="7"></a>
 1`)` Додаємо в файлі pom.xml:

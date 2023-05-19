@@ -1,6 +1,9 @@
 package com.example.appMarketplace.services;
 
 import com.example.appMarketplace.models.Product;
+import com.example.appMarketplace.repositories.ProductRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.events.Event;
 
@@ -9,32 +12,28 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class ProductService {
-    private List<Product> products = new ArrayList<>();
-    private long ID = 0;
-    {
-        products.add(new Product(++ID, "PlayStation 5", "Simple description", 50000.00, "Kyiv", "Piter"));
-        products.add(new Product(++ID, "iPhone 14", "Simple description", 60000.00, "Lviv", "Patric"));
-    }
 
-    public List<Product> listProducts() {
-        return products;
+    private final ProductRepository productRepository;
+    public List<Product> listProducts(String title) {
+        if (title != null) {
+            productRepository.findByTitle(title);
+        }
+        return productRepository.findAll();
     }
 
     public void saveProduct(Product product) {
-        product.setId(++ID);
-        products.add(product);
+        log.info("Saving new {}", product);
+        productRepository.save(product);
     }
 
     public void deleteProduct(Long id) {
-        products.removeIf(product -> product.getId() == id);
+        productRepository.deleteById(id);
     }
 
     public Product getProductById(Long id) {
-        for (Product product : products)
-            if (product.getId() == id) {
-                return product;
-            }
-        return null;
+        return productRepository.findById(id).orElse(null);
     }
 }

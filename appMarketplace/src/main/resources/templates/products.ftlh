@@ -6,6 +6,10 @@
     <body>
         <h1>appMarketplace</h1><hr>
         <h4>Товари зі всієї України</h4>
+        <form action="/" method="get">
+            Пошук по назві оголошення: <input type="text" name="title"/><br><br>
+            <input type="submit" value="Пошук"/>
+        </form>
         <#list products as product>
             <div>
                 <p><b>${product.title}</b> ${product.price} UAH | <a href="/product/${product.id}">Докладно</a></p>
